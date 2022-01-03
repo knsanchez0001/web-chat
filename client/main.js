@@ -1,16 +1,34 @@
 const chatForm = document.getElementById("chat-form");
+const chatMessages = document.getElementById("chat-messages");
 const socket = io();
 
 socket.on('message', message => {
     console.log(message);
+    outputMessage(message);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
 chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
     let msg = e.target.elements.msg.value;
     socket.emit('chatMessage', msg);
+
+    e.target.elements.msg.value = '';
+    e.target.elements.msg.focus();
+
+
 });
 
-function outputMessage(message){
+function outputMessage(message) {
     const div = document.createElement('div');
+    div.classList.add('clearfix')
+    div.classList.add('message');
+    div.innerHTML = `<div class="float-end">
+        <div>
+            <span style="font-size: 13px;">10:02 AM, Today</span>
+        </div>
+        <div class="message other-message card p-2 bg-success bg-opacity-25">${message}</div>
+    </div>`;
+    chatMessages.appendChild(div);
 }
