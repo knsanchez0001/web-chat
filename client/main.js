@@ -26,9 +26,9 @@ function outputMessage(message) {
     div.classList.add('message');
     div.innerHTML = `<div class="float-end">
         <div>
-            <span style="font-size: 13px;">10:02 AM, Today</span>
+            <span style="font-size: 13px;">${message.time}</span>
         </div>
-        <div class="message other-message card p-2 bg-success bg-opacity-25">${message}</div>
+        <div class="message other-message card p-2 bg-success bg-opacity-25">${message.text}</div>
     </div>`;
     chatMessages.appendChild(div);
 }
