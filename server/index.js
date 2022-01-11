@@ -26,8 +26,10 @@ const strategy = new LocalStrategy(
         return done(null, username);
     });
 
+const sessionMiddleware = expressSession(session);
 
-app.use(expressSession(session));
+
+app.use(sessionMiddleware);
 passport.use(strategy);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -62,16 +64,26 @@ app.get('/chat', (req, res) => {
     res.sendFile(path.resolve("client/chat.html"));
 });
 
-app.get('/user', function (req, res) {
-    const user = req.user;
-    res.json({ username: user });
+const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
+
+io.use(wrap(sessionMiddleware));
+io.use(wrap(passport.initialize()));
+io.use(wrap(passport.session()));
+
+io.use((socket, next) => {
+    if (socket.request.user) {
+        next();
+    } else {
+        next(new Error('unauthorized'))
+    }
 });
 
 io.on('connection', socket => {
-    
 
-    socket.on('user', user => {
-        console.log(`${user} has connected with socket id: ${socket.id}`);
+    socket.emit('connected', `${socket.request.user} has connected with socket id: ${socket.id}`);
+
+    socket.on('whoami', (cb) => {
+        cb(socket.request.user ? socket.request.user : '');
     });
 
     socket.on('chatMessage', (usr, msg) => {

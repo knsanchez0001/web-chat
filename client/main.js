@@ -4,17 +4,10 @@ const socket = io();
 
 let username = "null";
 
-const response = await fetch('/user')
-    .catch(function (error) {
-        alert(error);
-    });
-if (response.ok) {
-    const someJSON = await response.json();
-    username = someJSON.username;
-    socket.emit('user', username);
-} else {
-    console.error("Could not retrieve the username from the server.");
-}
+socket.emit('whoami', (user) => {
+    console.log(`Got ${user} on the client`);
+    username = user;
+  });
 
 socket.onAny((event, ...args) => {
     console.log(event, args);
@@ -32,8 +25,6 @@ chatForm.addEventListener('submit', (e) => {
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
-
-
 });
 
 function outputMessage(message) {
