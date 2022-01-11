@@ -2,17 +2,33 @@ const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
 const socket = io();
 
-socket.on('message', message => {
-    console.log(message);
-    outputMessage(message);
+let username = "null";
 
+const response = await fetch('/user')
+    .catch(function (error) {
+        alert(error);
+    });
+if (response.ok) {
+    const someJSON = await response.json();
+    username = someJSON.username;
+    socket.emit('user', username);
+} else {
+    console.error("Could not retrieve the username from the server.");
+}
+
+socket.onAny((event, ...args) => {
+    console.log(event, args);
+});
+
+socket.on('message', message => {
+    outputMessage(message);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
 chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
     let msg = e.target.elements.msg.value;
-    socket.emit('chatMessage', msg);
+    socket.emit('chatMessage', username, msg);
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
@@ -24,7 +40,8 @@ function outputMessage(message) {
     const div = document.createElement('div');
     div.classList.add('clearfix')
     div.classList.add('message');
-    div.innerHTML = `<div class="float-end">
+    if (message.user === username) {
+        div.innerHTML = `<div class="float-end">
         <div>
             <span style="font-size: 13px;">${message.time}</span>
         </div>
@@ -32,5 +49,18 @@ function outputMessage(message) {
             <span>${message.text}</span>
         </div>
     </div>`;
+    }
+    else {
+        div.innerHTML = `<div class="clearfix message">
+        <div>
+            <div>
+                <span style="font-size: 13px;">${message.time}</span>
+            </div>
+            <div class="float-start card p-2 bg-primary bg-opacity-25">
+                <span>${message.text}</span>
+            </div>
+        </div>
+    </div>`;
+    }
     chatMessages.appendChild(div);
 }

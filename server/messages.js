@@ -1,7 +1,8 @@
 const moment = require('moment');
 
-function formatMessage(text) {
+function formatMessage(user, text) {
     return {
+        user,
         text,
         time: moment().format('LT')
     };
