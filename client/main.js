@@ -2,12 +2,11 @@ const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
 const socket = io();
 
-let username = "null";
+let username = "";
 
 socket.emit('whoami', (user) => {
-    console.log(`Got ${user} on the client`);
     username = user;
-  });
+});
 
 socket.onAny((event, ...args) => {
     console.log(event, args);
