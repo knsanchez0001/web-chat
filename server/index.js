@@ -82,12 +82,10 @@ io.use((socket, next) => {
 
 io.on('connection', socket => {
     const users = [];
+    
+    io.emit('connected', `${socket.username} has connected with socket id: ${socket.id}`)
 
-    socket.emit('connected', `${socket.username} has connected with socket id: ${socket.id}`);
-
-    socket.on('whoami', (cb) => {
-        cb(socket.username ? socket.username : "" );
-    });
+    socket.emit('user-data', socket.id, socket.username);
 
     for (let [id, socket] of io.of("/").sockets) {
         users.push({
@@ -95,7 +93,7 @@ io.on('connection', socket => {
             username: socket.username,
         });
     }
-    socket.emit("users", users);
+    io.emit("user-list", users);
 
     socket.on('chatMessage', (usr, msg) => {
         io.emit('message', formatMessage(usr, msg));

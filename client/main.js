@@ -2,10 +2,13 @@ const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
 const socket = io();
 
-let username = "";
+socket.on('connected', note => {
+    console.log(note);
+});
 
-socket.emit('whoami', (user) => {
-    username = user;
+socket.on('user-data', (socketid, username) => {
+    window.sessionStorage.setItem("user", username);
+    window.sessionStorage.setItem("socketid", socketid);
 });
 
 socket.onAny((event, ...args) => {
@@ -19,8 +22,10 @@ socket.on('message', message => {
 
 chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    let msg = e.target.elements.msg.value;
-    socket.emit('chatMessage', username, msg);
+
+    const user = window.sessionStorage.getItem("user");
+    const message = e.target.elements.msg.value;
+    socket.emit('chatMessage', user, message);
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
@@ -28,29 +33,29 @@ chatForm.addEventListener('submit', (e) => {
 
 function outputMessage(message) {
     const div = document.createElement('div');
+    const user = window.sessionStorage.getItem("user");
     div.classList.add('clearfix')
     div.classList.add('message');
-    if (message.user === username) {
-        div.innerHTML = `<div class="float-end">
-        <div>
-            <span style="font-size: 13px;">${message.time}</span>
-        </div>
-        <div class="message other-message card p-2 bg-success bg-opacity-25">
-            <span>${message.text}</span>
-        </div>
-    </div>`;
+    if (message.user === user) {
+        div.innerHTML = `<div class="message float-end">
+            <div>
+                <span style="font-size: 13px;">${message.time}</span>
+            </div>
+            <div class="message other-message card p-2 bg-success bg-opacity-25">
+                <span>${message.text}</span>
+            </div>
+        </div>`;
     }
     else {
         div.innerHTML = `<div class="clearfix message">
-        <div>
+        <div class="message">
             <div>
                 <span style="font-size: 13px;">${message.time}</span>
             </div>
             <div class="float-start card p-2 bg-primary bg-opacity-25">
                 <span>${message.text}</span>
             </div>
-        </div>
-    </div>`;
+        </div>`;
     }
     chatMessages.appendChild(div);
 }
