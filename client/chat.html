@@ -6,7 +6,6 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <title>CHAT</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
 </head>
 
@@ -24,7 +23,7 @@
                             </div>
                             <input type="text" class="form-control" placeholder="Search...">
                         </div>
-                        <ul class="list-unstyled mt-2 mb-0 list-group d-grid">
+                        <ul class="list-unstyled mt-2 mb-0 list-group d-grid" id="user-list">
                             <li class="clearfix list-group-item list-group-item-action p-2">
                                 <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
                                     class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
@@ -179,6 +178,13 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="main.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $('#user-list > li').click(function () { ///<---perform a click event on li
+        $(this).addClass('active').siblings('li').removeClass('active'); //<--add active class to the clicked element and remove from other siblings li
+    });
+    </script>
 </body>
 
 </html>
