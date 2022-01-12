@@ -71,7 +71,9 @@ io.use(wrap(passport.initialize()));
 io.use(wrap(passport.session()));
 
 io.use((socket, next) => {
-    if (socket.request.user) {
+    const username = socket.request.user;
+    if (username) {
+        socket.username = username;
         next();
     } else {
         next(new Error('unauthorized'))
@@ -79,12 +81,21 @@ io.use((socket, next) => {
 });
 
 io.on('connection', socket => {
+    const users = [];
 
-    socket.emit('connected', `${socket.request.user} has connected with socket id: ${socket.id}`);
+    socket.emit('connected', `${socket.username} has connected with socket id: ${socket.id}`);
 
     socket.on('whoami', (cb) => {
-        cb(socket.request.user ? socket.request.user : '');
+        cb(socket.username ? socket.username : "" );
     });
+
+    for (let [id, socket] of io.of("/").sockets) {
+        users.push({
+            userID: id,
+            username: socket.username,
+        });
+    }
+    socket.emit("users", users);
 
     socket.on('chatMessage', (usr, msg) => {
         io.emit('message', formatMessage(usr, msg));
