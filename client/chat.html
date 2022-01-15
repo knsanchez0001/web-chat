@@ -24,67 +24,7 @@
                             <input type="text" class="form-control" placeholder="Search...">
                         </div>
                         <ul class="list-unstyled mt-2 mb-0 list-group d-grid" id="user-list">
-                            <li class="clearfix list-group-item list-group-item-action p-2">
-                                <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-                                    class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-                                    alt="avatar">
-                                <div class="about float-start ps-2">
-                                    <div class="name">Vincent Porter</div>
-                                    <div class="status" style="font-size: 13px;"> <i class="fa fa-circle offline"></i>
-                                        left 7 mins ago </div>
-                                </div>
-                            </li>
-                            <li class="clearfix list-group-item list-group-item-action active p-2">
-                                <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-                                    class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-                                    alt="avatar">
-                                <div class="about float-start ps-2">
-                                    <div class="name">Aiden Chavez</div>
-                                    <div class="status" style="font-size: 13px;"> <i class="fa fa-circle online"></i>
-                                        online </div>
-                                </div>
-                            </li>
-                            <li class="clearfix list-group-item list-group-item-action p-2">
-                                <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-                                    class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-                                    alt="avatar">
-                                <div class="about float-start ps-2">
-                                    <div class="name">Mike Thomas</div>
-                                    <div class="status" style="font-size: 13px;"> <i class="fa fa-circle online"></i>
-                                        online </div>
-                                </div>
-                            </li>
-                            <li class="clearfix list-group-item list-group-item-action p-2">
-                                <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-                                    class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-                                    alt="avatar">
-                                <div class="about float-start ps-2">
-                                    <div class="name">Christian Kelly</div>
-                                    <div class="status" style="font-size: 13px;"> <i class="fa fa-circle offline"></i>
-                                        left 10 hours ago </div>
-                                </div>
-                            </li>
-                            <li class="clearfix list-group-item list-group-item-action p-2">
-                                <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-                                    class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-                                    alt="avatar">
-                                <div class="about float-start ps-2">
-                                    <div class="name">Monica Ward</div>
-                                    <div class="status" style="font-size: 13px;"> <i class="fa fa-circle online"></i>
-                                        online </div>
-                                </div>
-                            </li>
-                            <li class="clearfix list-group-item list-group-item-action p-2">
-                                <img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-                                    class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-                                    alt="avatar">
-                                <div class="about float-start ps-2">
-                                    <div class="name">Dean Henry</div>
-                                    <div class="status" style="font-size: 13px;"> <i class="fa fa-circle offline"></i>
-                                        offline since Oct 28
-                                    </div>
-                                </div>
-                            </li>
+
                         </ul>
                     </div>
                 </div>
@@ -116,7 +56,6 @@
                             </div>
                         </div>
                         <div class="overflow-auto h-100 p-3" id="chat-messages">
-                            
                         </div>
                         <div class="clearfix">
                             <form id="chat-form">
@@ -137,13 +76,6 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="main.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        $('#user-list > li').click(function () { ///<---perform a click event on li
-            $(this).addClass('active').siblings('li').removeClass('active'); //<--add active class to the clicked element and remove from other siblings li
-        });
-    </script>
 </body>
 
 </html>
