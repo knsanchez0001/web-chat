@@ -37,9 +37,15 @@ socket.on('message', message => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-socket.on('private message', (anotherSocketId, usr, message) => {
+socket.on('private message', (anotherSocketId, username, message) => {
     console.log(message);
-    outputMessage(message);
+    console.log(anotherSocketId);
+    if(socket.id === anotherSocketId){
+        outputMessage(message, window.sessionStorage.getItem("selectedUser"));
+    } else {
+        outputMessage(message, username);
+    }
+    
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
@@ -47,15 +53,15 @@ chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const message = e.target.elements.msg.value;
-    console.log(chatRooms[window.sessionStorage.getItem("currentChat")]);
-    socket.emit('private message', chatRooms[window.sessionStorage.getItem("currentChat")],socket.username, message);
+    console.log(chatRooms[window.sessionStorage.getItem("selectedUser")]);
+    socket.emit('private message', chatRooms[window.sessionStorage.getItem("selectedUser")],socket.username, message);
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
 });
 
 userList.forEach(item => {
-    item.addEventListener('click', e => currentChat(e));
+    item.addEventListener('click', e => selectedUser(e));
 })
 
 function addUserSideBar(username) {
@@ -68,11 +74,11 @@ function addUserSideBar(username) {
         <div class="about float-start ps-2">
             <div class="name">${username}</div>
         </div>`;
-    li.addEventListener('click', e => currentChat(e));
+    li.addEventListener('click', e => selectedUser(e));
     document.getElementById('user-list').appendChild(li);
 }
 
-function currentChat(e) {
+function selectedUser(e) {
     const target = e.target;
     target.classList.add('active');
     const siblings = [...target.parentElement.children];
@@ -84,10 +90,10 @@ function currentChat(e) {
     });
     console.log(`activated chat with ${target.id}`);
     document.getElementById(`${target.id}-chat`).style.display = "block";
-    window.sessionStorage.setItem("currentChat", target.id);
+    window.sessionStorage.setItem("selectedUser", target.id);
 }
 
-function outputMessage(message) {
+function outputMessage(message, selectedUser) {
     const div = document.createElement('div');
     div.classList.add('clearfix')
     div.classList.add('message');
@@ -111,6 +117,6 @@ function outputMessage(message) {
             </div>
         </div>`;
     }
-    console.log(`${window.sessionStorage.getItem("currentChat")}-chat`);
-    document.getElementById(`${window.sessionStorage.getItem("currentChat")}-chat`).appendChild(div);
+    console.log(`${selectedUser}-chat`);
+    document.getElementById(`${selectedUser}-chat`).appendChild(div);
 }
