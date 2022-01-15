@@ -81,23 +81,23 @@ io.use((socket, next) => {
 });
 
 io.on('connection', socket => {
-    const users = [];
-    
-    io.emit('connected', `${socket.username} has connected with socket id: ${socket.id}`)
 
-    socket.emit('user-data', socket.id, socket.username);
+    socket.emit('connected', `You have connected with socket id: ${socket.id}` , socket.username);
 
+    const users = {};
     for (let [id, socket] of io.of("/").sockets) {
-        users.push({
-            userID: id,
-            username: socket.username,
-        });
+        users[socket.username] = id;
     }
     io.emit("user-list", users);
 
     socket.on('chatMessage', (usr, msg) => {
         io.emit('message', formatMessage(usr, msg));
     })
+
+    socket.on("private message", (anotherSocketId, usr, msg) => {
+        console.log("recieved private message");
+        io.to(anotherSocketId).to(socket.id).emit("private message", socket.id, usr, formatMessage(usr, msg));
+    });
 })
 
 server.listen(port, () => {
