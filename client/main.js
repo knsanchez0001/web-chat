@@ -90,6 +90,8 @@ function selectedUser(e) {
     });
     console.log(`activated chat with ${target.id}`);
     document.getElementById(`${target.id}-chat`).style.display = "block";
+    document.getElementById("selected-user").innerText = target.id;
+    document.getElementById("selected-user").parentElement.parentElement.style.display = "block";
     window.sessionStorage.setItem("selectedUser", target.id);
 }
 
