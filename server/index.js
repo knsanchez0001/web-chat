@@ -13,6 +13,9 @@ const expressSession = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
+const pgPromise = require('pg-promise');
+const pgp = pgPromise({});
+
 const session = {
     secret: process.env.SECRET || 'SECRET',
     resave: false,
@@ -28,6 +31,24 @@ const strategy = new LocalStrategy(
 
 const sessionMiddleware = expressSession(session);
 
+const url = process.env.DATABASE_URL || `postgres://${username}:${password}@localhost/`;
+const db = pgp(url);
+
+async function connectAndRun(task) {
+    let connection = null;
+    try {
+        connection = await db.connect();
+        return await task(connection);
+    } catch (e) {
+        throw e;
+    } finally {
+        try {
+            connection.done();
+        } catch (ignored) {
+
+        }
+    }
+}
 
 app.use(sessionMiddleware);
 passport.use(strategy);
@@ -83,6 +104,7 @@ io.use((socket, next) => {
 io.on('connection', socket => {
 
     socket.emit('connected', `You have connected with socket id: ${socket.id}` , socket.username);
+    await connectAndRun(db => db.any("INSERT INTO users(name) Values($1)  WHERE NOT EXISTS (SELECT 1 FROM users WHERE name=$1;", [socket.username]));
 
     const users = {};
     for (let [id, socket] of io.of("/").sockets) {
