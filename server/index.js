@@ -104,7 +104,7 @@ io.use((socket, next) => {
 io.on('connection', socket => {
 
     socket.emit('connected', `You have connected with socket id: ${socket.id}` , socket.username);
-    connectAndRun(db => db.any("INSERT INTO users(name) Values($1)  WHERE NOT EXISTS (SELECT 1 FROM users WHERE name=$1);", [socket.username]));
+    // connectAndRun(db => db.any("INSERT INTO users(name) Values($1)  WHERE NOT EXISTS (SELECT 1 FROM users WHERE name=$1);", [socket.username]));
 
     const users = {};
     for (let [id, socket] of io.of("/").sockets) {
