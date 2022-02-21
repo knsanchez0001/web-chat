@@ -1,12 +1,13 @@
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
-const userList = [...document.getElementById('user-list').getElementsByTagName('li')];
+// const userList = [...document.getElementById('user-list').getElementsByTagName('li')];
 const socket = io();
 const chatRooms = {};
 
 socket.on('connected', (note, username) => {
     console.log(note);
     socket.username = username;
+    document.getElementById("sidebar-header").innerText = username;
 });
 
 socket.on('user-list', users => {
@@ -15,8 +16,8 @@ socket.on('user-list', users => {
             if (!document.getElementById(key)) {
                 addUserSideBar(key);
                 const div = document.createElement('div');
-                div.classList.add("h-100");
                 div.id = `${key}-chat`;
+                div.classList.add("h-full", "w-full");
                 div.style.display = "none";
                 chatMessages.appendChild(div);
             }
@@ -39,7 +40,6 @@ socket.on('message', message => {
 
 socket.on('private message', (anotherSocketId, username, message) => {
     console.log(message);
-    console.log(anotherSocketId);
     if(socket.id === anotherSocketId){
         outputMessage(message, window.sessionStorage.getItem("selectedUser"));
     } else {
@@ -60,26 +60,27 @@ chatForm.addEventListener('submit', (e) => {
     e.target.elements.msg.focus();
 });
 
-userList.forEach(item => {
-    item.addEventListener('click', e => selectedUser(e));
-})
+// userList.forEach(item => {
+//     item.addEventListener('click', e => selectedUser(e));
+// })
 
 function addUserSideBar(username) {
-    const li = document.createElement("li");
-    li.id = username;
-    li.classList.add("clearfix", "list-group-item", "list-group-item-action", "p-2");
-    li.innerHTML = `<img src="https://iptc.org/wp-content/uploads/2018/05/avatar-anonymous-300x300.png"
-            class="rounded-circle float-start" style="max-width: 100%; height: 45px;"
-            alt="avatar">
-        <div class="about float-start ps-2">
+    const div = document.createElement("div");
+    div.id = username;
+    div.classList.add("flex", "w-full", "h-12", "hover:bg-slate-500", "border-b", "border-slate-200");
+    div.innerHTML = 
+        `<div class="flex w-full justify-center items-center">
             <div class="name">${username}</div>
         </div>`;
-    li.addEventListener('click', e => selectedUser(e));
-    document.getElementById('user-list').appendChild(li);
+    div.addEventListener('click', e => selectedUser(e));
+    document.getElementById('sidebar-contacts-list').appendChild(div);
 }
 
 function selectedUser(e) {
-    const target = e.target;
+    let target = e.target;
+    while(target.id === ""){ // Weird bug fix
+        target = target.parentElement;
+    }
     target.classList.add('active');
     const siblings = [...target.parentElement.children];
     siblings.forEach(sibling => {
@@ -90,31 +91,30 @@ function selectedUser(e) {
     });
     console.log(`activated chat with ${target.id}`);
     document.getElementById(`${target.id}-chat`).style.display = "block";
-    document.getElementById("selected-user").innerText = target.id;
-    document.getElementById("selected-user").parentElement.parentElement.style.display = "block";
+    document.getElementById("chat-header").innerText = target.id;
     window.sessionStorage.setItem("selectedUser", target.id);
+    chatForm.classList.remove("invisible");
 }
 
 function outputMessage(message, selectedUser) {
     const div = document.createElement('div');
-    div.classList.add('clearfix')
-    div.classList.add('message');
+    div.classList.add('message', 'container');
     if (message.user === socket.username) {
-        div.innerHTML = `<div class="float-end">
-            <div>
+        div.innerHTML = `<div class="flex flex-col max-w-fit ml-auto mr-4">
+            <div class="ml-auto">
                 <span style="font-size: 13px;">${message.time}</span>
             </div>
-            <div class="message other-message card p-2 bg-success bg-opacity-25">
+            <div class="p-2 bg-emerald-100">
                 <span>${message.text}</span>
             </div>
         </div>`;
     }
     else {
-        div.innerHTML = `<div>
+        div.innerHTML = `<div class="flex flex-col max-w-fit ml-4">
             <div>
                 <span style="font-size: 13px;">${message.time}</span>
             </div>
-            <div class="float-start card p-2 bg-primary bg-opacity-25">
+            <div class="p-2 bg-slate-50">
                 <span>${message.text}</span>
             </div>
         </div>`;
