@@ -18,5 +18,8 @@
     "passport-local": "^1.0.0",
     "pg-promise": "^10.11.1",
     "socket.io": "^4.1.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.0.23"
   }
 }
