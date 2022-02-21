@@ -2,6 +2,7 @@ const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
 const socket = io();
 const chatRooms = {};
+const notificationSound = document.getElementById('notification-sound');
 
 socket.on('connected', (note, username) => {
     console.log(note);
@@ -43,6 +44,11 @@ socket.on('private message', (anotherSocketId, username, message) => {
         outputMessage(message, window.sessionStorage.getItem("selectedUser"));
     } else {
         outputMessage(message, username);
+        if (notificationSound.paused) {
+            notificationSound.play();
+        }else{
+            notificationSound.currentTime = 0;
+        }
     }
     
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -62,11 +68,13 @@ chatForm.addEventListener('submit', (e) => {
 function addUserSideBar(username) {
     const div = document.createElement("div");
     div.id = username;
-    div.classList.add("flex", "w-full", "h-12", "hover:bg-slate-500", "border-b", "border-slate-200");
+    div.classList.add("flex", "w-full", "h-12", "hover:bg-slate-500", "border-b", "border-slate-200", "justify-center", "items-center", "space-x-4");
     div.innerHTML = 
-        `<div class="flex w-full justify-center items-center">
-            <div class="name">${username}</div>
-        </div>`;
+        `<span class="name">
+            ${username}
+        </span>
+        <span class="notification text-red-700">
+        </span>`;
     div.addEventListener('click', e => selectedUser(e));
     document.getElementById('sidebar-contacts-list').appendChild(div);
 }
@@ -77,6 +85,7 @@ function selectedUser(e) {
         target = target.parentElement;
     }
     target.classList.add('active');
+    target.children[1].innerText = "";
     const siblings = [...target.parentElement.children];
     siblings.forEach(sibling => {
         if (sibling !== target) {
@@ -116,4 +125,11 @@ function outputMessage(message, selectedUser) {
     }
     console.log(`${selectedUser}-chat`);
     document.getElementById(`${selectedUser}-chat`).appendChild(div);
+
+    const e = document.getElementById(`${selectedUser}`)
+    if(!e.classList.contains('active')){
+        const num = e.children[1].innerText === "" ? 0 : parseInt(e.children[1].innerText);
+        console.log(parseInt(e.children[1].innerText));
+        e.children[1].innerText = num + 1;
+    }
 }
