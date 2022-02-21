@@ -1,6 +1,5 @@
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
-// const userList = [...document.getElementById('user-list').getElementsByTagName('li')];
 const socket = io();
 const chatRooms = {};
 
@@ -59,10 +58,6 @@ chatForm.addEventListener('submit', (e) => {
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
 });
-
-// userList.forEach(item => {
-//     item.addEventListener('click', e => selectedUser(e));
-// })
 
 function addUserSideBar(username) {
     const div = document.createElement("div");
