@@ -24,26 +24,42 @@ async function connectAndRun(task) {
 }
 
 async function addUser(name) {
-    if (await findUser(name)) {
-        return false;
+    try {
+        if (await findUser(name)) {
+            return false;
+        }
+        insertUser(name);
+        return true;
+    } catch (error) {
+        console.log(error);
     }
-    insertUser(name);
-    return true;
 }
 
 async function insertUser(name) {
-    return await connectAndRun(db => db.any("INSERT INTO users(name) Values($1);", [name]));
+    try {
+        return await connectAndRun(db => db.any("INSERT INTO users(name) Values($1);", [name]));
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-async function userExists(user) {
-    return (await connectAndRun(db => db.any("SELECT EXISTS (SELECT * FROM users WHERE name=$1);", user)))[0].exists;
+async function userExists(user) {  
+    try {
+        return (await connectAndRun(db => db.any("SELECT EXISTS (SELECT * FROM users WHERE name=$1);", user)))[0].exists;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function findUser(username) {
-    if (await userExists(username)) {
-        return true;
-    } else {
-        return false;
+    try {
+        if (await userExists(username)) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.log(error);
     }
 }
 
