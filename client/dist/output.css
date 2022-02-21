@@ -555,8 +555,8 @@ Ensure the default browser behavior of the `hidden` attribute.
   height: 100vh;
 }
 
-.h-\[92\%\] {
-  height: 92%;
+.h-\[80\%\] {
+  height: 80%;
 }
 
 .h-16 {
