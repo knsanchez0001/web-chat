@@ -5,6 +5,7 @@ const pgp = pgPromise({});
 const username = "postgres";
 const password = "admin";
 const url = process.env.DATABASE_URL || `postgres://${username}:${password}@localhost/`;
+pgp.pg.defaults.ssl = true;
 const db = pgp(url);
 
 async function connectAndRun(task) {
