@@ -33,24 +33,21 @@ socket.onAny((event, ...args) => {
     console.log(event, args);
 });
 
-socket.on('message', message => {
-    outputMessage(message);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-socket.on('private message', (anotherSocketId, username, message) => {
+socket.on('private message', (anotherSocketId, sender, message) => {
+    console.log(socket.id);
+    console.log(anotherSocketId);
     console.log(message);
-    if(socket.id === anotherSocketId){
-        outputMessage(message, window.sessionStorage.getItem("selectedUser"));
-    } else {
-        outputMessage(message, username);
+    console.log(sender);
+    console.log(window.sessionStorage.getItem("selectedUsername"));
+    outputMessage(message, sender, window.sessionStorage.getItem("selectedUsername"));
+    if (socket.id !== anotherSocketId) {
         if (notificationSound.paused) {
             notificationSound.play();
-        }else{
+        } else {
             notificationSound.currentTime = 0;
         }
     }
-    
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
@@ -58,8 +55,7 @@ chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const message = e.target.elements.msg.value;
-    console.log(chatRooms[window.sessionStorage.getItem("selectedUser")]);
-    socket.emit('private message', chatRooms[window.sessionStorage.getItem("selectedUser")],socket.username, message);
+    socket.emit('private message', chatRooms[window.sessionStorage.getItem("selectedUsername")], socket.username, message);
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
@@ -69,7 +65,7 @@ function addUserSideBar(username) {
     const div = document.createElement("div");
     div.id = username;
     div.classList.add("flex", "w-full", "h-12", "hover:bg-slate-500", "border-b", "border-slate-200", "justify-center", "items-center", "space-x-4");
-    div.innerHTML = 
+    div.innerHTML =
         `<span class="name">
             ${username}
         </span>
@@ -81,11 +77,12 @@ function addUserSideBar(username) {
 
 function selectedUser(e) {
     let target = e.target;
-    while(target.id === ""){ // Weird bug fix
+    while (target.id === "") { // Weird bug fix
         target = target.parentElement;
     }
     target.classList.add('active');
     target.children[1].innerText = "";
+    const selectedUsername = target.id;
     const siblings = [...target.parentElement.children];
     siblings.forEach(sibling => {
         if (sibling !== target) {
@@ -93,43 +90,46 @@ function selectedUser(e) {
             document.getElementById(`${sibling.id}-chat`).style.display = "none";
         }
     });
-    console.log(`activated chat with ${target.id}`);
-    document.getElementById(`${target.id}-chat`).style.display = "block";
-    document.getElementById("chat-header").innerText = target.id;
-    window.sessionStorage.setItem("selectedUser", target.id);
+    console.log(`activated chat with user: ${selectedUsername}`);
+    document.getElementById(`${selectedUsername}-chat`).style.display = "block";
+    document.getElementById("chat-header").innerText = selectedUsername;
+    window.sessionStorage.setItem("selectedUsername", selectedUsername);
     chatForm.classList.remove("invisible");
 }
 
-function outputMessage(message, selectedUser) {
+function outputMessage(message, sender, reciever) {
+    console.log(sender);
+    console.log(reciever);
+    console.log(socket.username);
     const div = document.createElement('div');
     div.classList.add('message', 'container');
-    if (message.user === socket.username) {
+    if (sender === socket.username) {
         div.innerHTML = `<div class="flex flex-col max-w-fit ml-auto mr-4">
-            <div class="ml-auto">
-                <span style="font-size: 13px;">${message.time}</span>
-            </div>
             <div class="p-2 bg-emerald-100">
-                <span>${message.text}</span>
+                <span>${message}</span>
             </div>
         </div>`;
+        helper(reciever);
     }
     else {
         div.innerHTML = `<div class="flex flex-col max-w-fit ml-4">
-            <div>
-                <span style="font-size: 13px;">${message.time}</span>
-            </div>
             <div class="p-2 bg-slate-50">
-                <span>${message.text}</span>
+                <span>${message}</span>
             </div>
         </div>`;
+        helper(sender);
     }
-    console.log(`${selectedUser}-chat`);
-    document.getElementById(`${selectedUser}-chat`).appendChild(div);
 
-    const e = document.getElementById(`${selectedUser}`)
-    if(!e.classList.contains('active')){
-        const num = e.children[1].innerText === "" ? 0 : parseInt(e.children[1].innerText);
-        console.log(parseInt(e.children[1].innerText));
-        e.children[1].innerText = num + 1;
+    function helper(username) {
+        console.log(`${username}-chat`);
+        document.getElementById(`${username}-chat`).appendChild(div);
+
+        const e = document.getElementById(`${username}`)
+        if (!e.classList.contains('active')) {
+            const num = e.children[1].innerText === "" ? 0 : parseInt(e.children[1].innerText);
+            console.log(parseInt(e.children[1].innerText));
+            e.children[1].innerText = num + 1;
+        }
     }
+
 }

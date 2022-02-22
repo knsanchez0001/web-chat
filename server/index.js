@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
-const formatMessage = require('./messages.js');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -93,14 +92,12 @@ io.on('connection', socket => {
     }
     io.emit("user-list", users);
 
-    socket.on('chatMessage', (usr, msg) => {
-        io.emit('message', formatMessage(usr, msg));
-    })
-
-    socket.on("private message", (anotherSocketId, usr, msg) => {
+    socket.on("private message", (anotherSocketId, username, message) => {
         console.log("recieved private message");
-        socket.to(anotherSocketId).emit("private message", socket.id, socket.username, formatMessage(usr, msg));
-        socket.emit("private message", socket.id, socket.username, formatMessage(usr, msg));
+        console.log(username);
+        console.log(socket.username);
+        socket.to(anotherSocketId).emit("private message", socket.id, socket.username, message);
+        socket.emit("private message", socket.id, socket.username, message);
     });
 })
 
