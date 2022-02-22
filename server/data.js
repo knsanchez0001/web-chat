@@ -4,9 +4,16 @@ const pgp = pgPromise({});
 // Local PostgreSQL credentials
 const username = "postgres";
 const password = "admin";
-const url = process.env.DATABASE_URL || `postgres://${username}:${password}@localhost/`;
-pgp.pg.defaults.ssl = true;
-const db = pgp(url);
+// const url = process.env.DATABASE_URL || `postgres://${username}:${password}@localhost/`;
+// pgp.pg.defaults.ssl = true;
+const cn = {
+    connectionString: process.env.DATABASE_URL || `postgres://${username}:${password}@localhost/`,
+    ssl: {
+        require: true,
+        rejectUnauthorized: false
+    }
+}
+const db = pgp(cn);
 
 async function connectAndRun(task) {
     let connection = null;
@@ -44,7 +51,7 @@ async function insertUser(name) {
     }
 }
 
-async function userExists(user) {  
+async function userExists(user) {
     try {
         return (await connectAndRun(db => db.any("SELECT EXISTS (SELECT * FROM users WHERE name=$1);", user)))[0].exists;
     } catch (error) {
