@@ -94,8 +94,6 @@ io.on('connection', socket => {
 
     socket.on("private message", (anotherSocketId, username, message) => {
         console.log("recieved private message");
-        console.log(username);
-        console.log(socket.username);
         socket.to(anotherSocketId).emit("private message", socket.id, socket.username, message);
         socket.emit("private message", socket.id, socket.username, message);
     });

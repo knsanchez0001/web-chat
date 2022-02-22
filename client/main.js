@@ -1,7 +1,7 @@
 const chatForm = document.getElementById("chat-form");
 const chatMessages = document.getElementById("chat-messages");
 const socket = io();
-const chatRooms = {};
+const otherSocketIds = {};
 const notificationSound = document.getElementById('notification-sound');
 
 socket.on('connected', (note, username) => {
@@ -11,17 +11,17 @@ socket.on('connected', (note, username) => {
 });
 
 socket.on('user-list', users => {
-    for (const [key, value] of Object.entries(users)) {
-        if (socket.username !== key) {
-            if (!document.getElementById(key)) {
-                addUserSideBar(key);
+    for (const [username, socketId] of Object.entries(users)) {
+        if (socket.username !== username) {
+            if (!document.getElementById(username)) {
+                addUserSideBar(username);
                 const div = document.createElement('div');
-                div.id = `${key}-chat`;
+                div.id = `${username}-chat`;
                 div.classList.add("h-full", "w-full");
                 div.style.display = "none";
                 chatMessages.appendChild(div);
             }
-            chatRooms[key] = value;
+            otherSocketIds[username] = socketId;
         }
     }
     console.log(JSON.parse(window.sessionStorage.getItem("users")));
@@ -39,7 +39,7 @@ socket.on('private message', (anotherSocketId, sender, message) => {
     console.log(message);
     console.log(sender);
     console.log(window.sessionStorage.getItem("selectedUsername"));
-    outputMessage(message, sender, window.sessionStorage.getItem("selectedUsername"));
+    outputMessage(message, sender);
     if (socket.id !== anotherSocketId) {
         if (notificationSound.paused) {
             notificationSound.play();
@@ -55,7 +55,7 @@ chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const message = e.target.elements.msg.value;
-    socket.emit('private message', chatRooms[window.sessionStorage.getItem("selectedUsername")], socket.username, message);
+    socket.emit('private message', otherSocketIds[window.sessionStorage.getItem("selectedUsername")], socket.username, message);
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
@@ -97,9 +97,8 @@ function selectedUser(e) {
     chatForm.classList.remove("invisible");
 }
 
-function outputMessage(message, sender, reciever) {
+function outputMessage(message, sender) {
     console.log(sender);
-    console.log(reciever);
     console.log(socket.username);
     const div = document.createElement('div');
     div.classList.add('message', 'container');
@@ -109,7 +108,7 @@ function outputMessage(message, sender, reciever) {
                 <span>${message}</span>
             </div>
         </div>`;
-        helper(reciever);
+        helper(window.sessionStorage.getItem("selectedUsername"));
     }
     else {
         div.innerHTML = `<div class="flex flex-col max-w-fit ml-4">
