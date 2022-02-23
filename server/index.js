@@ -97,7 +97,9 @@ app.post('/register',
         const salt = bcrypt.genSaltSync(saltRounds);
         const hash = bcrypt.hashSync(password, salt);
 
-        database.addUser(username, hash);
+        if(database.addUser(username, hash)){
+            database.addRooms(username);
+        }
         next();
     }, passport.authenticate('local', {
         'successRedirect': '/chat',
@@ -136,8 +138,9 @@ io.on('connection', socket => {
     }
     io.emit("user-list", users);
 
-    socket.on("private message", (anotherSocketId, username, message) => {
+    socket.on("private message", (anotherSocketId, receiver, message) => {
         console.log("recieved private message");
+        database.addMessage(socket.username, receiver, message);
         socket.to(anotherSocketId).emit("private message", socket.id, socket.username, message);
         socket.emit("private message", socket.id, socket.username, message);
     });

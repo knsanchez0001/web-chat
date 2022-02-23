@@ -55,7 +55,8 @@ chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const message = e.target.elements.msg.value;
-    socket.emit('private message', otherSocketIds[window.sessionStorage.getItem("selectedUsername")], socket.username, message);
+    const selectedUsername = window.sessionStorage.getItem("selectedUsername");
+    socket.emit('private message', otherSocketIds[selectedUsername], selectedUsername, message);
 
     e.target.elements.msg.value = '';
     e.target.elements.msg.focus();
