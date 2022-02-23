@@ -97,8 +97,8 @@ app.post('/register',
         const salt = bcrypt.genSaltSync(saltRounds);
         const hash = bcrypt.hashSync(password, salt);
 
-        if (database.addUser(username, hash)) {
-            database.addRooms(username);
+        if (await database.addUser(username, hash)) {
+            await database.addRooms(username);
         }
         next();
     }, passport.authenticate('local', {
@@ -128,15 +128,17 @@ io.use((socket, next) => {
     }
 });
 
-io.on('connection', socket => {
+io.on('connection', async (socket) => {
     socket.emit('connected', `You have connected with socket id: ${socket.id}`, socket.username);
-    database.addUser(socket.username);
 
-    const users = {};
+    const userList = await database.createUserList();
     for (let [otherId, otherSocket] of io.of("/").sockets) {
-        users[otherSocket.username] = otherId;
+        userList[otherSocket.username] = otherId;
     }
-    io.emit("user-list", users);
+    io.emit("user-list", userList);
+
+    const oldMessages = await database.getMessages(socket.username);
+    socket.emit("old messages", oldMessages);
 
     socket.on("private message", (anotherSocketId, receiver, message) => {
         console.log("recieved private message");

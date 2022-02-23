@@ -35,7 +35,7 @@ socket.on('private message', (anotherSocketId, sender, message) => {
     console.log(message);
     console.log(sender);
     console.log(window.sessionStorage.getItem("selectedUsername"));
-    outputMessage(message, sender);
+    outputMessage(message, sender, window.sessionStorage.getItem("selectedUsername"));
     if (socket.id !== anotherSocketId) {
         if (notificationSound.paused) {
             notificationSound.play();
@@ -44,6 +44,12 @@ socket.on('private message', (anotherSocketId, sender, message) => {
         }
     }
     chatBoxes.scrollTop = chatBoxes.scrollHeight;
+});
+
+socket.on('old messages', oldMessages => {
+    oldMessages.forEach(obj => {
+        outputMessage(obj.message, obj.author, obj.reader_2);
+    });
 });
 
 chatForm.addEventListener('submit', (e) => {
@@ -101,7 +107,7 @@ function selectedUser(e) {
     chatForm.classList.remove("invisible");
 }
 
-function outputMessage(message, sender) {
+function outputMessage(message, sender, otherUser) {
     console.log(sender);
     console.log(socket.username);
     const div = document.createElement('div');
@@ -112,7 +118,7 @@ function outputMessage(message, sender) {
                 <span>${message}</span>
             </div>
         </div>`;
-        helper(window.sessionStorage.getItem("selectedUsername"));
+        helper(otherUser);
     }
     else {
         div.innerHTML = `<div class="flex flex-col max-w-fit ml-4">
