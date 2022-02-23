@@ -1,5 +1,5 @@
 const chatForm = document.getElementById("chat-form");
-const chatMessages = document.getElementById("chat-messages");
+const chatBoxes = document.getElementById("chat-messages");
 const socket = io();
 const otherSocketIds = {};
 const notificationSound = document.getElementById('notification-sound');
@@ -13,12 +13,8 @@ socket.on('connected', (note, username) => {
 socket.on('user-list', users => {
     for (const [username, socketId] of Object.entries(users)) {
         if (!document.getElementById(username)) {
-            addUserSideBar(username);
-            const div = document.createElement('div');
-            div.id = `${username}-chat`;
-            div.classList.add("h-full", "w-full");
-            div.style.display = "none";
-            chatMessages.appendChild(div);
+            addToSideBar(username);
+            createChatBox(username);
         }
         otherSocketIds[username] = socketId;
     }
@@ -45,8 +41,7 @@ socket.on('private message', (anotherSocketId, sender, message) => {
             notificationSound.currentTime = 0;
         }
     }
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatBoxes.scrollTop = chatBoxes.scrollHeight;
 });
 
 chatForm.addEventListener('submit', (e) => {
@@ -60,7 +55,7 @@ chatForm.addEventListener('submit', (e) => {
     e.target.elements.msg.focus();
 });
 
-function addUserSideBar(username) {
+function addToSideBar(username) {
     const div = document.createElement("div");
     div.id = username;
     div.classList.add("flex", "w-full", "h-12", "hover:bg-slate-500", "border-b", "border-slate-200", "justify-center", "items-center", "space-x-4");
@@ -72,6 +67,14 @@ function addUserSideBar(username) {
         </span>`;
     div.addEventListener('click', e => selectedUser(e));
     document.getElementById('sidebar-contacts-list').appendChild(div);
+}
+
+function createChatBox(username) {
+    const div = document.createElement('div');
+    div.id = `${username}-chat`;
+    div.classList.add("h-full", "w-full");
+    div.style.display = "none";
+    chatBoxes.appendChild(div);
 }
 
 function selectedUser(e) {
