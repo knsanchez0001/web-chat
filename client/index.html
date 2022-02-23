@@ -9,26 +9,44 @@
 
 <body>
     <div class="bg-emerald-100 h-screen flex items-center justify-center">
-        <div class="mx-auto flex shadow-lg h-96 max-h-full w-96 max-w-full  bg-slate-100 items-center justify-center">
-            <form class="space-y-4" action="/login" method="post">
-                <div class="rounded-md shadow-sm space-y-px">
-                    <div class="space-y-1">
-                        <div>
-                            <label for="username" class="sr-only">Username</label>
-                            <input id="username" name="username" type="text" placeholder="Username" required
-                                class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md  sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="password" class="sr-only">Password</label>
-                            <input id="password" name="password" type="password" placeholder="Password" required
-                                class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm">
-                        </div>
+        <div
+            class="mx-auto flex flex-col shadow-lg h-96 max-h-full w-96 max-w-full  bg-slate-100 space-y-1 items-center justify-center">
+            <div id="alert">
+
+            </div>
+            <div id="login-div">
+                <form class="space-y-4 w-full" action="/login" method="post">
+                    <div class="flex flex-col rounded-md shadow-sm space-y-1">
+                        <input id="username" name="username" type="text" placeholder="Username" required
+                            class="px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md  sm:text-sm">
+                        <input id="password" name="password" type="password" placeholder="Password" required
+                            class="px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm">
                     </div>
+                    <button type="submit" class="w-full py-1 border rounded-md bg-emerald-200">Login</button>
+                </form>
+                <div>
+                    <button id="register-button">Register</button>
                 </div>
-                <button type="submit" class="w-full py-1 border rounded-md bg-emerald-200">Login</button>
-            </form>
+            </div>
+            <div id="register-div" style="display: none">
+                <form class="space-y-4 w-full" action="/register" method="post">
+                    <div class="flex flex-col rounded-md shadow-sm space-y-1">
+                        <input id="register-username" name="username" type="text" placeholder="Username" required
+                            class="px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md  sm:text-sm">
+                        <input id="register-password" name="password" type="password" placeholder="Password" required
+                            class="px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm">
+                        <input id="confirm-password" type="password" placeholder="Confirm password" required
+                            class="px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm">
+                    </div>
+                    <button type="submit" class="w-full py-1 border rounded-md bg-emerald-200">Register</button>
+                </form>
+                <div>
+                    <button id="login-button">Login</button>
+                </div>
+            </div>
         </div>
     </div>
+    <script type="module" src="login.js" defer></script>
 </body>
 
 </html>

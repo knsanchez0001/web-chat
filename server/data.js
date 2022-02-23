@@ -29,21 +29,25 @@ async function connectAndRun(task) {
     }
 }
 
-async function addUser(name) {
+async function addUser(name, hash) {
     try {
         if (await findUser(name)) {
             return false;
         }
-        insertUser(name);
+        insertUser(name, hash);
         return true;
     } catch (error) {
         console.log(error);
     }
 }
 
-async function insertUser(name) {
+async function getUserHash(user) {
+    return await connectAndRun(db => db.any("SELECT hash FROM users where username = $1", user));
+}
+
+async function insertUser(name, hash) {
     try {
-        return await connectAndRun(db => db.any("INSERT INTO users(name) Values($1);", [name]));
+        return await connectAndRun(db => db.any("INSERT INTO users(username, hash) VALUES($1, $2);", [name, hash]));
     } catch (error) {
         console.log(error);
     }
@@ -51,7 +55,7 @@ async function insertUser(name) {
 
 async function userExists(user) {
     try {
-        return (await connectAndRun(db => db.any("SELECT EXISTS (SELECT * FROM users WHERE name=$1);", user)))[0].exists;
+        return (await connectAndRun(db => db.any("SELECT EXISTS (SELECT * FROM users WHERE username=$1);", user)))[0].exists;
     } catch (error) {
         console.log(error);
     }
@@ -71,5 +75,7 @@ async function findUser(username) {
 
 
 module.exports = {
-    addUser: addUser
+    addUser: addUser,
+    getUserHash : getUserHash,
+    findUser : findUser
 };
