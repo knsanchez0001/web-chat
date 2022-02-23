@@ -35,7 +35,7 @@ socket.on('private message', (anotherSocketId, sender, message) => {
     console.log(message);
     console.log(sender);
     console.log(window.sessionStorage.getItem("selectedUsername"));
-    outputMessage(message, sender, window.sessionStorage.getItem("selectedUsername"));
+    outputMessage(message, sender, window.sessionStorage.getItem("selectedUsername"), true);
     if (socket.id !== anotherSocketId) {
         if (notificationSound.paused) {
             notificationSound.play();
@@ -48,7 +48,7 @@ socket.on('private message', (anotherSocketId, sender, message) => {
 
 socket.on('old messages', oldMessages => {
     oldMessages.forEach(obj => {
-        outputMessage(obj.message, obj.author, obj.reader_2);
+        outputMessage(obj.message, obj.author, obj.reader_2, false);
     });
 });
 
@@ -107,7 +107,7 @@ function selectedUser(e) {
     chatForm.classList.remove("invisible");
 }
 
-function outputMessage(message, sender, otherUser) {
+function outputMessage(message, sender, otherUser, isNewMessage) {
     console.log(sender);
     console.log(socket.username);
     const div = document.createElement('div');
@@ -134,7 +134,7 @@ function outputMessage(message, sender, otherUser) {
         document.getElementById(`${username}-chat`).appendChild(div);
 
         const e = document.getElementById(`${username}`)
-        if (!e.classList.contains('active')) {
+        if (!e.classList.contains('active') && isNewMessage) {
             const num = e.children[1].innerText === "" ? 0 : parseInt(e.children[1].innerText);
             console.log(parseInt(e.children[1].innerText));
             e.children[1].innerText = num + 1;
