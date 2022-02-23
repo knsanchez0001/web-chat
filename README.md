@@ -13,4 +13,7 @@ Technologies used:
 * node.js
 * postgresql
 
+Database schema
+<img src="https://github.com/knsanchez0001/web-chat/blob/main/schema.png" width="500" />
+
 Notification sound effect provided by [Notification Sounds](https://notificationsounds.com/notification-sounds/elegant-notification-sound) 
