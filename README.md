@@ -11,5 +11,6 @@ Technologies used:
 * socket.io
 * tailwind css
 * node.js
+* postgresql
 
 Notification sound effect provided by [Notification Sounds](https://notificationsounds.com/notification-sounds/elegant-notification-sound) 
