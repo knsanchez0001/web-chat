@@ -133,8 +133,10 @@ io.on('connection', socket => {
     database.addUser(socket.username);
 
     const users = {};
-    for (let [id, socket] of io.of("/").sockets) {
-        users[socket.username] = id;
+    for (let [otherId, otherSocket] of io.of("/").sockets) {
+        if(socket.id !== otherId){
+            users[otherSocket.username] = otherId;
+        }
     }
     io.emit("user-list", users);
 

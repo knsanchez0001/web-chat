@@ -12,17 +12,15 @@ socket.on('connected', (note, username) => {
 
 socket.on('user-list', users => {
     for (const [username, socketId] of Object.entries(users)) {
-        if (socket.username !== username) {
-            if (!document.getElementById(username)) {
-                addUserSideBar(username);
-                const div = document.createElement('div');
-                div.id = `${username}-chat`;
-                div.classList.add("h-full", "w-full");
-                div.style.display = "none";
-                chatMessages.appendChild(div);
-            }
-            otherSocketIds[username] = socketId;
+        if (!document.getElementById(username)) {
+            addUserSideBar(username);
+            const div = document.createElement('div');
+            div.id = `${username}-chat`;
+            div.classList.add("h-full", "w-full");
+            div.style.display = "none";
+            chatMessages.appendChild(div);
         }
+        otherSocketIds[username] = socketId;
     }
     console.log(JSON.parse(window.sessionStorage.getItem("users")));
     window.sessionStorage.setItem("users", JSON.stringify(users));
