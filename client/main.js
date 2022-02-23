@@ -12,11 +12,13 @@ socket.on('connected', (note, username) => {
 
 socket.on('user-list', users => {
     for (const [username, socketId] of Object.entries(users)) {
-        if (!document.getElementById(username)) {
-            addToSideBar(username);
-            createChatBox(username);
+        if(socketId !== socket.id){
+            if (!document.getElementById(username)) {
+                addToSideBar(username);
+                createChatBox(username);
+            }
+            otherSocketIds[username] = socketId;
         }
-        otherSocketIds[username] = socketId;
     }
     console.log(JSON.parse(window.sessionStorage.getItem("users")));
     window.sessionStorage.setItem("users", JSON.stringify(users));
