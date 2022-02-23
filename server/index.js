@@ -31,14 +31,14 @@ const strategy = new LocalStrategy({
     async (req, username, password, done) => {
         if (!(await database.findUser(username))) {
             // no such user
-            return done(null, false, {'message': 'No such username'});
+            return done(null, false, { 'message': 'No such username' });
         }
         if (!(await validatePassword(username, password))) {
             // invalid password
             // should disable logins after N messages
             // delay return to rate-limit brute-force attacks
             await new Promise((r) => setTimeout(r, 2000)); // two second delay
-            return done(null, false, {'message': 'Wrong password'});
+            return done(null, false, { 'message': 'Wrong password' });
         }
         // success!
         // should create a user object here, associated with a unique identifier
@@ -85,7 +85,7 @@ app.post('/login',
     passport.authenticate('local', {
         'successRedirect': '/chat',
         'failureRedirect': '/',
-        'failureFlash' : true
+        'failureFlash': true
     })
 );
 
@@ -97,14 +97,14 @@ app.post('/register',
         const salt = bcrypt.genSaltSync(saltRounds);
         const hash = bcrypt.hashSync(password, salt);
 
-        if(database.addUser(username, hash)){
+        if (database.addUser(username, hash)) {
             database.addRooms(username);
         }
         next();
     }, passport.authenticate('local', {
         'successRedirect': '/chat',
         'failureRedirect': '/',
-        'failureFlash' : 'Failed to register'
+        'failureFlash': 'Failed to register'
     })
 );
 
@@ -134,9 +134,7 @@ io.on('connection', socket => {
 
     const users = {};
     for (let [otherId, otherSocket] of io.of("/").sockets) {
-        if(socket.id !== otherId){
-            users[otherSocket.username] = otherId;
-        }
+        users[otherSocket.username] = otherId;
     }
     io.emit("user-list", users);
 
