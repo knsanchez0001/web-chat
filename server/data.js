@@ -91,7 +91,7 @@ async function addRooms(username) {
 
 async function addMessage(sender, receiver, message) {
     try {
-        await connectAndRun(db => db.any(`INSERT INTO messages(author_id, room_id, message) VALUES((SELECT id FROM users WHERE username='${sender}') , (SELECT room_id FROM (SELECT id, user_id AS user_id_1 FROM rooms INNER JOIN participants ON id=room_id WHERE user_id = (SELECT id FROM users WHERE username='${sender}')) AS foo INNER JOIN participants ON id=room_id WHERE user_id = (SELECT id FROM users WHERE username='${receiver}')), '${message.replace('\'', '\'\'')}');`));
+        await connectAndRun(db => db.any(`INSERT INTO messages(author_id, room_id, message) VALUES((SELECT id FROM users WHERE username='${sender}') , (SELECT room_id FROM (SELECT id, user_id AS user_id_1 FROM rooms INNER JOIN participants ON id=room_id WHERE user_id = (SELECT id FROM users WHERE username='${sender}')) AS foo INNER JOIN participants ON id=room_id WHERE user_id = (SELECT id FROM users WHERE username='${receiver}')), '${message.replaceAll('\'', '\'\'')}');`));
     } catch (error) {
         console.log(error);
     }
