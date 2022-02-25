@@ -48,7 +48,7 @@ socket.on('private message', (anotherSocketId, sender, message) => {
 
 socket.on('old messages', oldMessages => {
     oldMessages.forEach(obj => {
-        outputMessage(obj.message, obj.author, obj.reader_2, false);
+        outputMessage(obj.message, obj.author, obj.buddy, false);
     });
 });
 

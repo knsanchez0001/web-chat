@@ -29,7 +29,7 @@ const strategy = new LocalStrategy({
     passReqToCallback: true
 },
     async (req, username, password, done) => {
-        if (!(await database.findUser(username))) {
+        if (!(await database.userExists(username))) {
             // no such user
             return done(null, false, { 'message': 'No such username' });
         }
@@ -64,7 +64,7 @@ passport.deserializeUser((uid, done) => {
 });
 
 async function validatePassword(name, password) {
-    const hash = (await database.getUserHash(name))[0].hash;
+    const hash = await database.getUserHash(name);
     const result = await bcrypt.compare(password, hash);
     return result;
 }
@@ -77,8 +77,8 @@ app.get("/fail", (req, res) => {
     res.json(errors);
 })
 
-app.get("/finduser/:id", async (req, res) => {
-    res.json(await database.findUser(req.params.id));
+app.get("/userexists/:id", async (req, res) => {
+    res.json(await database.userExists(req.params.id));
 });
 
 app.post('/login',
@@ -97,9 +97,7 @@ app.post('/register',
         const salt = bcrypt.genSaltSync(saltRounds);
         const hash = bcrypt.hashSync(password, salt);
 
-        if (await database.addUser(username, hash)) {
-            await database.addRooms(username);
-        }
+        await database.registerUser(username, hash);
         next();
     }, passport.authenticate('local', {
         'successRedirect': '/chat',

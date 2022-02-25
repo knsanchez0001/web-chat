@@ -29,44 +29,35 @@ async function connectAndRun(task) {
     }
 }
 
-async function addUser(username, hash) {
-    if (await findUser(username)) {
-        return false;
-    }
-    await insertUser(username, hash);
-    return true;
-}
-
 async function getUserHash(username) {
-    return await connectAndRun(db => db.any("SELECT hash FROM users where username = $1", username));
-}
-
-async function insertUser(username, hash) {
-    return await connectAndRun(db => db.any("INSERT INTO users(username, hash) VALUES($1, $2);", [username, hash]));
+    return await connectAndRun(db => db.one("SELECT hash FROM users where username = $1", username)).then(obj => obj.hash);
 }
 
 async function userExists(username) {
-    return (await connectAndRun(db => db.any("SELECT EXISTS (SELECT * FROM users WHERE username=$1);", username)))[0].exists;
+    return await connectAndRun(db => db.one("SELECT EXISTS (SELECT * FROM users WHERE username=$1)", username)).then(obj => obj.exists);
 }
 
-async function findUser(username) {
-    if (await userExists(username)) {
-        return true;
-    } else {
+async function registerUser(username, hash) {
+    if(await userExists(username)){
         return false;
     }
+    await connectAndRun(db => db.none("INSERT INTO users(username, hash) VALUES($1, $2)", [username, hash]));
+    await addRooms(username);
 }
 
 async function addRooms(username) {
-    const otherUsers = await getOtherUserIds(username);
-    const user_id = (await connectAndRun(db => db.any("SELECT id FROM users WHERE username=$1;", username)))[0].id;
-    for (let i = 0; i < otherUsers.length; i++) {
-        await connectAndRun(db => db.any("INSERT INTO rooms DEFAULT VALUES;"));
-
-        const room_id = (await connectAndRun(db => db.any("SELECT MAX(id) FROM rooms;")))[0].max;
+    const otherUserIds = await connectAndRun(db => db.manyOrNone("SELECT id FROM users WHERE NOT username=$1;", username)).then(arr => arr.map(obj => obj.id));
+    if(otherUserIds.length === 0){
+        await connectAndRun(db => db.any("INSERT INTO rooms DEFAULT VALUES"));
+        return;
+    }
+    
+    const user_id = await connectAndRun(db => db.one("SELECT id FROM users WHERE username=$1", username)).then(obj => obj.id);
+    for (let i = 0; i < otherUserIds.length; i++) {
         await connectAndRun(db => db.any(`
-            INSERT INTO participants VALUES($1, $3); 
-            INSERT INTO participants VALUES($2, $3);`, [otherUsers[i].id, user_id, room_id]));
+            INSERT INTO participants VALUES($1, (SELECT MAX(id) FROM rooms)); 
+            INSERT INTO participants VALUES($2, (SELECT MAX(id) FROM rooms));
+            INSERT INTO rooms DEFAULT VALUES;`, [otherUserIds[i], user_id]));
     }
 }
 
@@ -86,27 +77,18 @@ async function addMessage(sender, receiver, message) {
 
 }
 
-async function getOtherUserIds(username) {
-    return await connectAndRun(db => db.any("SELECT id FROM users WHERE NOT username=$1;", username));
-}
-
-async function getUsernames() {
-    return await connectAndRun(db => db.any("SELECT username FROM users"));
-}
-
 async function createUserList() {
     const userList = {};
-    const usernames = await getUsernames();
+    const usernames = await connectAndRun(db => db.manyOrNone("SELECT username FROM users")).then(arr => arr.map(obj => obj.username))
     for (let i = 0; i < usernames.length; i++) {
-        const username = usernames[i].username;
-        userList[username] = null;   
+        userList[usernames[i]] = null;   
     }
     return userList;
 }
 
 async function getMessages(username) {
     const messages = await connectAndRun(db => db.any(`
-        SELECT id, author, reader, reader_2, message
+        SELECT author, buddy, message
             FROM (
                 SELECT id, author, reader, message, user_id
                     FROM (
@@ -125,17 +107,16 @@ async function getMessages(username) {
                             WHERE reader=$1) AS fizz
                     LEFT JOIN (SELECT user_id, room_id AS r_id FROM participants) AS par
                     ON fizz.room_id = par.r_id) AS buzz
-            LEFT JOIN( SELECT username AS reader_2, id AS u_id FROM users) AS readers_2
-            ON readers_2.u_id=buzz.user_id
-            WHERE NOT reader_2=$1 ORDER BY id;`, username));
+            LEFT JOIN( SELECT username AS buddy, id AS u_id FROM users) AS buddies
+            ON buddies.u_id=buzz.user_id
+            WHERE NOT buddy=$1 ORDER BY id;`, username));
     return messages;
 }
 
 module.exports = {
-    addUser: addUser,
+    registerUser : registerUser,
     getUserHash: getUserHash,
-    findUser: findUser,
-    addRooms: addRooms,
+    userExists : userExists,
     addMessage: addMessage,
     createUserList: createUserList,
     getMessages: getMessages

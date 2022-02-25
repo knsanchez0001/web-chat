@@ -30,7 +30,7 @@ function checkPasswords() {
 async function okUsername() {
     const str = usernameRegister.value;
     if (str.length > 0) {
-        const response = await fetch(`/finduser/${str}`);
+        const response = await fetch(`/userexists/${str}`);
         if (response.ok) {
             const bool = await response.json();
             if (bool) {
